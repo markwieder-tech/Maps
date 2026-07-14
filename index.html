@@ -173,16 +173,34 @@
     const aberdeen = [57.148161, -2.109375];
     const stavanger = [58.963333, 5.718889];
 
+        // Create map
+    const map = L.map("map").setView([58.05, 1.75], 7);
+
     // Calculated points along the Aberdeen-Stavanger route
-    const noPortCallBreakeven = [58.004311, 1.230009];   // 119 nm from Aberdeen
-    const portCallBreakeven = [58.051881, 1.431303];     // 126 nm from Aberdeen
-    const routeMidpoint = [58.115928, 1.705343];         // ~136 nm from Aberdeen
 
     // Placeholder offshore sites. Replace these with actual site coordinates.
     const offshoreSites = [];
 
-    // Create map
-    const map = L.map("map").setView([58.05, 1.75], 7);
+    
+// Calculate points directly along the displayed Aberdeen-Stavanger line
+function pointAlongDisplayedRoute(fraction) {
+  const zoom = map.getZoom();
+
+  const startPoint = map.project(L.latLng(aberdeen), zoom);
+  const endPoint = map.project(L.latLng(stavanger), zoom);
+
+  const interpolatedPoint = L.point(
+    startPoint.x + (endPoint.x - startPoint.x) * fraction,
+    startPoint.y + (endPoint.y - startPoint.y) * fraction
+  );
+
+  return map.unproject(interpolatedPoint, zoom);
+}
+
+const noPortCallBreakeven = pointAlongDisplayedRoute(119 / 271);
+const portCallBreakeven = pointAlongDisplayedRoute(126 / 271);
+const routeMidpoint = pointAlongDisplayedRoute(135.5 / 271);
+
 
     // Add OpenStreetMap basemap
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
