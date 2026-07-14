@@ -20,20 +20,21 @@
       height: 100vh;
     }
 
-    .map-title {
-      position: absolute;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      background: white;
-      padding: 10px 16px;
-      border-radius: 6px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.3);
-      font-size: 18px;
-      font-weight: bold;
-      text-align: center;
-    }
+
+.map-title {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  font-size: 15px;
+  font-weight: bold;
+  text-align: center;
+}
 
     .legend {
       position: absolute;
@@ -109,15 +110,16 @@
       line-height: 1.4;
     }
 
-    .label {
-      background: white;
-      border: 1px solid #777;
-      border-radius: 4px;
-      padding: 3px 6px;
-      font-size: 13px;
-      font-weight: bold;
-      color: #222;
-    }
+.label {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #222;
+}
+
   </style>
 </head>
 
@@ -177,24 +179,7 @@
     const routeMidpoint = [58.115928, 1.705343];         // ~136 nm from Aberdeen
 
     // Placeholder offshore sites. Replace these with actual site coordinates.
-    const offshoreSites = [
-      {
-        name: "Offshore Site A",
-        coords: [58.32, 0.90]
-      },
-      {
-        name: "Offshore Site B",
-        coords: [57.70, 1.20]
-      },
-      {
-        name: "Offshore Site C",
-        coords: [58.25, 1.85]
-      },
-      {
-        name: "Offshore Site D",
-        coords: [57.85, 2.05]
-      }
-    ];
+    const offshoreSites = [];
 
     // Create map
     const map = L.map("map").setView([58.05, 1.75], 7);
@@ -261,7 +246,7 @@
       })
     })
     .addTo(map)
-    .bindTooltip("No port call breakeven<br>119 nm from Aberdeen", {
+    .bindTooltip("No port call<br>119 nm", {
       permanent: true,
       direction: "top",
       className: "label"
@@ -276,7 +261,7 @@
       fillOpacity: 1
     })
     .addTo(map)
-    .bindTooltip("Port call breakeven<br>126 nm from Aberdeen", {
+    .bindTooltip("Port call<br>126 nm", {
       permanent: true,
       direction: "bottom",
       className: "label"
@@ -291,7 +276,7 @@
       fillOpacity: 1
     })
     .addTo(map)
-    .bindTooltip("50% route split<br>~136 nm from Aberdeen", {
+    .bindTooltip("50% split<br>~136 nm", {
       permanent: true,
       direction: "right",
       className: "label"
