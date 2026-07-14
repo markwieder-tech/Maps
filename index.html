@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Aberdeen-Stavanger Breakeven Map</title>
+
+  https://unpkg.com/leaflet@1.9.4/dist/leaflet.css
+
+  https://unpkg.com/leaflet@1.9.4/dist/leaflet.js  </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .map-title {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .legend {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      z-index: 1000;
+      background: white;
+      padding: 12px 14px;
+      border-radius: 6px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .legend-symbol {
+      width: 20px;
+      height: 12px;
+      margin-right: 8px;
+      display: inline-block;
+    }
+
+    .route-line {
+      background: #005b96;
+      height: 4px;
+    }
+
+    .purple-diamond {
+      width: 12px;
+      height: 12px;
+      background: #7c3aed;
+      transform: rotate(45deg);
+      margin-left: 4px;
+    }
+
+    .orange-circle {
+      width: 13px;
+      height: 13px;
+      background: #f97316;
+      border-radius: 50%;
+      margin-left: 4px;
+    }
+
+    .grey-dot {
+      width: 10px;
+      height: 10px;
+      background: #333333;
+      border-radius: 50%;
+      margin-left: 5px;
+    }
+
+    .dash-line {
+      border-top: 3px dashed #555555;
+      width: 22px;
+    }
+
+    .caption {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      max-width: 420px;
+      background: white;
+      padding: 10px 14px;
+      border-radius: 6px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .label {
+      background: white;
+      border: 1px solid #777;
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #222;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="map-title">
+    Aberdeen-Stavanger route and central ETS breakeven locations
+  </div>
+
+  <div id="map"></div>
+
+  <div class="legend">
+    <strong>Legend</strong>
+
+    <div class="legend-item">
+      <span class="legend-symbol route-line"></span>
+      Indicative Aberdeen-Stavanger route
+    </div>
+
+    <div class="legend-item">
+      <span class="legend-symbol purple-diamond"></span>
+      No port call breakeven
+    </div>
+
+    <div class="legend-item">
+      <span class="legend-symbol orange-circle"></span>
+      Port call breakeven
+    </div>
+
+    <div class="legend-item">
+      <span class="legend-symbol dash-line"></span>
+      50% route split
+    </div>
+
+    <div class="legend-item">
+      <span class="legend-symbol grey-dot"></span>
+      Offshore site
+    </div>
+  </div>
+
+  <div class="caption">
+    Breakeven locations use the 12-month fuel average and central ETS scenario.
+    Distances are measured in nautical miles from Aberdeen along the indicative
+    Aberdeen-Stavanger route. Offshore sites are placeholders until actual site
+    coordinates are added.
+  </div>
+
+  <script>
+    // Coordinates: [latitude, longitude]
+
+    const aberdeen = [57.148161, -2.109375];
+    const stavanger = [58.963333, 5.718889];
+
+    // Calculated points along the Aberdeen-Stavanger route
+    const noPortCallBreakeven = [58.004311, 1.230009];   // 119 nm from Aberdeen
+    const portCallBreakeven = [58.051881, 1.431303];     // 126 nm from Aberdeen
+    const routeMidpoint = [58.115928, 1.705343];         // ~136 nm from Aberdeen
+
+    // Placeholder offshore sites. Replace these with actual site coordinates.
+    const offshoreSites = [
+      {
+        name: "Offshore Site A",
+        coords: [58.32, 0.90]
+      },
+      {
+        name: "Offshore Site B",
+        coords: [57.70, 1.20]
+      },
+      {
+        name: "Offshore Site C",
+        coords: [58.25, 1.85]
+      },
+      {
+        name: "Offshore Site D",
+        coords: [57.85, 2.05]
+      }
+    ];
+
+    // Create map
+    const map = L.map("map").setView([58.05, 1.75], 7);
+
+    // Add OpenStreetMap basemap
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    // Route line
+    const routeLine = L.polyline([aberdeen, stavanger], {
+      color: "#005b96",
+      weight: 5,
+      opacity: 0.95
+    }).addTo(map);
+
+    // Aberdeen marker
+    L.circleMarker(aberdeen, {
+      radius: 8,
+      color: "white",
+      weight: 2,
+      fillColor: "#003b66",
+      fillOpacity: 1
+    })
+    .addTo(map)
+    .bindTooltip("Aberdeen<br>0 nm", {
+      permanent: true,
+      direction: "left",
+      className: "label"
+    });
+
+    // Stavanger marker
+    L.circleMarker(stavanger, {
+      radius: 8,
+      color: "white",
+      weight: 2,
+      fillColor: "#003b66",
+      fillOpacity: 1
+    })
+    .addTo(map)
+    .bindTooltip("Stavanger<br>~271 nm", {
+      permanent: true,
+      direction: "right",
+      className: "label"
+    });
+
+    // No port call breakeven marker
+    L.marker(noPortCallBreakeven, {
+      icon: L.divIcon({
+        className: "",
+        html: `
+          <div style="
+            width: 18px;
+            height: 18px;
+            background: #7c3aed;
+            transform: rotate(45deg);
+            border: 2px solid white;
+            box-shadow: 0 0 3px rgba(0,0,0,0.5);
+          "></div>
+        `,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      })
+    })
+    .addTo(map)
+    .bindTooltip("No port call breakeven<br>119 nm from Aberdeen", {
+      permanent: true,
+      direction: "top",
+      className: "label"
+    });
+
+    // Port call breakeven marker
+    L.circleMarker(portCallBreakeven, {
+      radius: 9,
+      color: "white",
+      weight: 2,
+      fillColor: "#f97316",
+      fillOpacity: 1
+    })
+    .addTo(map)
+    .bindTooltip("Port call breakeven<br>126 nm from Aberdeen", {
+      permanent: true,
+      direction: "bottom",
+      className: "label"
+    });
+
+    // 50% route split marker
+    L.circleMarker(routeMidpoint, {
+      radius: 7,
+      color: "#555555",
+      weight: 3,
+      fillColor: "white",
+      fillOpacity: 1
+    })
+    .addTo(map)
+    .bindTooltip("50% route split<br>~136 nm from Aberdeen", {
+      permanent: true,
+      direction: "right",
+      className: "label"
+    });
+
+    // Small dashed cross-line to show 50% split
+    const splitLine = L.polyline([
+      [58.42, 1.55],
+      [57.82, 1.86]
+    ], {
+      color: "#555555",
+      weight: 3,
+      dashArray: "8, 8"
+    }).addTo(map);
+
+    // Offshore site markers
+    offshoreSites.forEach(site => {
+      L.circleMarker(site.coords, {
+        radius: 6,
+        color: "white",
+        weight: 1.5,
+        fillColor: "#333333",
+        fillOpacity: 1
+      })
+      .addTo(map)
+      .bindTooltip(site.name, {
+        permanent: true,
+        direction: "right",
+        className: "label"
+      });
+    });
+
+    // Automatically fit map to main route
+    map.fitBounds(routeLine.getBounds(), {
+      padding: [70, 70]
+    });
+  </script>
+
+</body>
+</html>
