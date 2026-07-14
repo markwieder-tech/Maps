@@ -111,14 +111,17 @@
     }
 
 .label {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #999;
-  border-radius: 3px;
-  padding: 2px 5px;
-  font-size: 11px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #888;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 12px;
   font-weight: bold;
   color: #222;
+  line-height: 1.25;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
+
 
   </style>
 </head>
@@ -302,11 +305,12 @@ const splitLinePerps = getPerpendiculars(135.5 / 271, 40);
       })
     })
     .addTo(map)
-    .bindTooltip("No port call<br>119 nm", {
-      permanent: true,
-      direction: "top",
-      className: "label"
-    });
+.bindTooltip("No port call<br>breakeven point<br>119 nm", {
+  permanent: true,
+  direction: "left",
+  offset: L.point(-10, 0),
+  className: "label"
+});
 
     // Port call breakeven marker
     L.circleMarker(portCallBreakeven, {
@@ -317,11 +321,13 @@ const splitLinePerps = getPerpendiculars(135.5 / 271, 40);
       fillOpacity: 1
     })
     .addTo(map)
-    .bindTooltip("Port call<br>126 nm", {
-      permanent: true,
-      direction: "bottom",
-      className: "label"
-    });
+.bindTooltip("Port call<br>breakeven point<br>126 nm", {
+  permanent: true,
+  direction: "bottom",
+  offset: L.point(0, 12),
+  className: "label"
+});
+
 
     // 50% route split marker
     L.circleMarker(routeMidpoint, {
@@ -332,11 +338,13 @@ const splitLinePerps = getPerpendiculars(135.5 / 271, 40);
       fillOpacity: 1
     })
     .addTo(map)
-    .bindTooltip("50% split<br>~136 nm", {
-      permanent: true,
-      direction: "right",
-      className: "label"
-    });
+.bindTooltip("50% split<br>~136 nm", {
+  permanent: true,
+  direction: "right",
+  offset: L.point(12, 0),
+  className: "label"
+});
+
 
     // Small dashed cross-line to show 50% split (aligned with marker)
     const splitLine = L.polyline(splitLinePerps, {
