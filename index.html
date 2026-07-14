@@ -351,6 +351,193 @@ const splitLinePerps = getPerpendiculars(135.5 / 271, 40);
   className: "label"
 });
 
+    // ===== START incentive arrows =====
+
+// Two-colour directional incentive arrows along the Aberdeen-Stavanger route.
+// Left arrow: favours UK port servicing.
+// Right arrow: favours rerouting.
+// The arrows use purple/orange to match the two breakeven markers.
+
+const incentiveArrowSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+incentiveArrowSvg.setAttribute("class", "incentive-arrows");
+incentiveArrowSvg.style.position = "absolute";
+incentiveArrowSvg.style.top = "0";
+incentiveArrowSvg.style.left = "0";
+incentiveArrowSvg.style.width = "100%";
+incentiveArrowSvg.style.height = "100%";
+incentiveArrowSvg.style.pointerEvents = "none";
+incentiveArrowSvg.style.zIndex = "425";
+
+map.getContainer().appendChild(incentiveArrowSvg);
+
+function drawIncentiveArrows() {
+  incentiveArrowSvg.innerHTML = "";
+
+  const svgNS = "http://www.w3.org/2000/svg";
+
+  const defs = document.createElementNS(svgNS, "defs");
+  incentiveArrowSvg.appendChild(defs);
+
+  function addArrowMarker(id, color) {
+    const marker = document.createElementNS(svgNS, "marker");
+    marker.setAttribute("id", id);
+    marker.setAttribute("markerWidth", "10");
+    marker.setAttribute("markerHeight", "10");
+    marker.setAttribute("refX", "9");
+    marker.setAttribute("refY", "5");
+    marker.setAttribute("orient", "auto");
+    marker.setAttribute("markerUnits", "strokeWidth");
+
+    const path = document.createElementNS(svgNS, "path");
+    path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+    path.setAttribute("fill", color);
+    path.setAttribute("fill-opacity", "0.88");
+
+    marker.appendChild(path);
+    defs.appendChild(marker);
+  }
+
+  addArrowMarker("arrow-purple", "#7c3aed");
+  addArrowMarker("arrow-orange", "#f97316");
+
+  function pointAtFraction(fraction) {
+    return map.latLngToContainerPoint(pointAlongDisplayedRoute(fraction));
+  }
+
+  function unitVector(from, to) {
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+
+    return {
+      x: dx / length,
+      y: dy / length
+    };
+  }
+
+  function shiftPoint(point, normal, offset) {
+    return {
+      x: point.x + normal.x * offset,
+      y: point.y + normal.y * offset
+    };
+  }
+
+  function drawLine(from, to, color, width, markerId = null, opacity = 0.82) {
+    const line = document.createElementNS(svgNS, "line");
+
+    line.setAttribute("x1", from.x);
+    line.setAttribute("y1", from.y);
+    line.setAttribute("x2", to.x);
+    line.setAttribute("y2", to.y);
+    line.setAttribute("stroke", color);
+    line.setAttribute("stroke-width", width);
+    line.setAttribute("stroke-linecap", "round");
+    line.setAttribute("stroke-opacity", opacity);
+
+    if (markerId) {
+      line.setAttribute("marker-end", `url(#${markerId})`);
+    }
+
+    incentiveArrowSvg.appendChild(line);
+  }
+
+  // Route fractions
+  const noPortFraction = 119 / 271;
+  const portCallFraction = 126 / 271;
+
+  // Keep arrows away from the port labels by not extending fully to each port.
+  const leftEndFraction = 0.16;
+  const rightEndFraction = 0.86;
+
+  const routeStart = pointAtFraction(0);
+  const routeEnd = pointAtFraction(1);
+
+  const routeUnit = unitVector(routeStart, routeEnd);
+  const normal = {
+    x: -routeUnit.y,
+    y: routeUnit.x
+  };
+
+  // Increase/decrease these if the arrows sit too close/far from the blue route line.
+  const leftArrowOffset = 28;
+  const rightArrowOffset = -28;
+
+  // Arrow thickness settings.
+  const singleWidth = 10;
+  const splitWidth = 5;
+  const splitOffset = 3.5;
+
+  const noPortPoint = pointAtFraction(noPortFraction);
+  const portCallPoint = pointAtFraction(portCallFraction);
+  const leftEndPoint = pointAtFraction(leftEndFraction);
+  const rightEndPoint = pointAtFraction(rightEndFraction);
+
+  // Left-facing arrow, towards Aberdeen.
+  // First short section: orange from port-call breakeven to no-port-call breakeven.
+  drawLine(
+    shiftPoint(portCallPoint, normal, leftArrowOffset),
+    shiftPoint(noPortPoint, normal, leftArrowOffset),
+    "#f97316",
+    singleWidth,
+    null,
+    0.62
+  );
+
+  // Left-facing split section: orange + purple from no-port-call breakeven towards Aberdeen.
+  drawLine(
+    shiftPoint(noPortPoint, normal, leftArrowOffset + splitOffset),
+    shiftPoint(leftEndPoint, normal, leftArrowOffset + splitOffset),
+    "#f97316",
+    splitWidth,
+    "arrow-orange",
+    0.78
+  );
+
+  drawLine(
+    shiftPoint(noPortPoint, normal, leftArrowOffset - splitOffset),
+    shiftPoint(leftEndPoint, normal, leftArrowOffset - splitOffset),
+    "#7c3aed",
+    splitWidth,
+    "arrow-purple",
+    0.78
+  );
+
+  // Right-facing arrow, towards Stavanger.
+  // First short section: purple from no-port-call breakeven to port-call breakeven.
+  drawLine(
+    shiftPoint(noPortPoint, normal, rightArrowOffset),
+    shiftPoint(portCallPoint, normal, rightArrowOffset),
+    "#7c3aed",
+    singleWidth,
+    null,
+    0.62
+  );
+
+  // Right-facing split section: purple + orange from port-call breakeven towards Stavanger.
+  drawLine(
+    shiftPoint(portCallPoint, normal, rightArrowOffset - splitOffset),
+    shiftPoint(rightEndPoint, normal, rightArrowOffset - splitOffset),
+    "#7c3aed",
+    splitWidth,
+    "arrow-purple",
+    0.78
+  );
+
+  drawLine(
+    shiftPoint(portCallPoint, normal, rightArrowOffset + splitOffset),
+    shiftPoint(rightEndPoint, normal, rightArrowOffset + splitOffset),
+    "#f97316",
+    splitWidth,
+    "arrow-orange",
+    0.78
+  );
+}
+
+drawIncentiveArrows();
+
+map.on("zoomend moveend resize", drawIncentiveArrows);
+
+// ===== END incentive arrows =====
 
     // Small dashed cross-line to show 50% split (aligned with marker)
     const splitLine = L.polyline(splitLinePerps, {
