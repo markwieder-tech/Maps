@@ -131,7 +131,22 @@
   <div class="map-title">
     Aberdeen-Stavanger route and central ETS breakeven locations
   </div>
+  
+<div class="map-title">
+  Aberdeen-Stavanger route and central ETS breakeven locations
+</div>
 
+<div class="decision-guide">
+  <div class="decision-title">Economic incentive direction along the route</div>
+  <div class="decision-row">
+    <div class="decision-left">← UK port servicing<br>favoured</div>
+    <div class="decision-zone">Breakeven zone<br>119–126 nm</div>
+    <div class="decision-right">Rerouting<br>favoured →</div>
+  </div>
+</div>
+
+<div id="map"></div>
+  
   <div id="map"></div>
 
   <div class="legend">
@@ -170,6 +185,61 @@
     coordinates are added.
   </div>
 
+.decision-guide {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #b5b5b5;
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  font-size: 12px;
+  color: #222;
+  max-width: 560px;
+}
+
+.decision-title {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.decision-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.decision-left,
+.decision-right,
+.decision-zone {
+  padding: 5px 8px;
+  border-radius: 4px;
+  line-height: 1.2;
+  font-weight: bold;
+}
+
+.decision-left {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.decision-zone {
+  background: #fff3cd;
+  color: #7a5200;
+  min-width: 95px;
+}
+
+.decision-right {
+  background: #e3f2fd;
+  color: #004b7c;
+}
+  
   <script>
     // Coordinates: [latitude, longitude]
 
