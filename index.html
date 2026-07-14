@@ -523,6 +523,60 @@ function drawIncentiveArrows() {
     splitColorB: "#f97316",
     offset: rightArrowOffset
   });
+// Arrow captions
+  function addArrowCaption(text, fraction, offset, colour) {
+    const point = pointAtFraction(fraction);
+
+    const routeDirection = unitVector(pointAtFraction(0), pointAtFraction(1));
+    const routeNormal = {
+      x: -routeDirection.y,
+      y: routeDirection.x
+    };
+
+    const captionPoint = shiftPoint(point, routeNormal, offset);
+
+    const angle = Math.atan2(routeDirection.y, routeDirection.x) * 180 / Math.PI;
+
+    // White halo behind text for readability
+    const halo = document.createElementNS(svgNS, "text");
+    halo.setAttribute("x", captionPoint.x);
+    halo.setAttribute("y", captionPoint.y);
+    halo.setAttribute("text-anchor", "middle");
+    halo.setAttribute("dominant-baseline", "middle");
+    halo.setAttribute("transform", `rotate(${angle}, ${captionPoint.x}, ${captionPoint.y})`);
+    halo.setAttribute("font-size", "15");
+    halo.setAttribute("font-weight", "700");
+    halo.setAttribute("font-family", "Arial, sans-serif");
+    halo.setAttribute("fill", colour);
+    halo.setAttribute("stroke", "white");
+    halo.setAttribute("stroke-width", "5");
+    halo.setAttribute("stroke-linejoin", "round");
+    halo.setAttribute("paint-order", "stroke");
+    halo.textContent = text;
+
+    incentiveArrowSvg.appendChild(halo);
+
+    // Main text
+    const label = document.createElementNS(svgNS, "text");
+    label.setAttribute("x", captionPoint.x);
+    label.setAttribute("y", captionPoint.y);
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("dominant-baseline", "middle");
+    label.setAttribute("transform", `rotate(${angle}, ${captionPoint.x}, ${captionPoint.y})`);
+    label.setAttribute("font-size", "15");
+    label.setAttribute("font-weight", "700");
+    label.setAttribute("font-family", "Arial, sans-serif");
+    label.setAttribute("fill", colour);
+    label.textContent = text;
+
+    incentiveArrowSvg.appendChild(label);
+  }
+
+  // Right arrow caption: above the arrow
+  addArrowCaption("Rerouting favoured", 0.72, rightArrowOffset - 28, "#7c3aed");
+
+  // Left arrow caption: below the arrow
+  addArrowCaption("UK port servicing favoured", 0.24, leftArrowOffset + 28, "#f97316");
 }
 
 drawIncentiveArrows();
