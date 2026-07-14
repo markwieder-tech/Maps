@@ -197,9 +197,47 @@ function pointAlongDisplayedRoute(fraction) {
   return map.unproject(interpolatedPoint, zoom);
 }
 
+// Calculate perpendicular offset from a point on the route
+function getPerpendiculars(fraction, offsetDistance) {
+  const zoom = map.getZoom();
+
+  const startPoint = map.project(L.latLng(aberdeen), zoom);
+  const endPoint = map.project(L.latLng(stavanger), zoom);
+
+  // Main point along route
+  const mainPoint = L.point(
+    startPoint.x + (endPoint.x - startPoint.x) * fraction,
+    startPoint.y + (endPoint.y - startPoint.y) * fraction
+  );
+
+  // Direction vector along route
+  const dx = endPoint.x - startPoint.x;
+  const dy = endPoint.y - startPoint.y;
+  const length = Math.sqrt(dx * dx + dy * dy);
+
+  // Perpendicular direction (rotated 90 degrees)
+  const perpX = -dy / length;
+  const perpY = dx / length;
+
+  // Two points perpendicular to the route
+  const point1 = L.point(
+    mainPoint.x + perpX * offsetDistance,
+    mainPoint.y + perpY * offsetDistance
+  );
+  const point2 = L.point(
+    mainPoint.x - perpX * offsetDistance,
+    mainPoint.y - perpY * offsetDistance
+  );
+
+  return [map.unproject(point1, zoom), map.unproject(point2, zoom)];
+}
+
 const noPortCallBreakeven = pointAlongDisplayedRoute(119 / 271);
 const portCallBreakeven = pointAlongDisplayedRoute(126 / 271);
 const routeMidpoint = pointAlongDisplayedRoute(135.5 / 271);
+
+// Get perpendicular points for the split line (centered on routeMidpoint)
+const splitLinePerps = getPerpendiculars(135.5 / 271, 40);
 
 
     // Add OpenStreetMap basemap
@@ -300,11 +338,8 @@ const routeMidpoint = pointAlongDisplayedRoute(135.5 / 271);
       className: "label"
     });
 
-    // Small dashed cross-line to show 50% split
-    const splitLine = L.polyline([
-      [58.42, 1.55],
-      [57.82, 1.86]
-    ], {
+    // Small dashed cross-line to show 50% split (aligned with marker)
+    const splitLine = L.polyline(splitLinePerps, {
       color: "#555555",
       weight: 3,
       dashArray: "8, 8"
