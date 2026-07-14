@@ -424,19 +424,29 @@ function drawIncentiveArrows() {
       offset
     } = options;
 
-    const direction = unitVector(tail, head);
-    const normal = {
-      x: -direction.y,
-      y: direction.x
-    };
+const direction = unitVector(tail, head);
 
-    const bodyHalfWidth = 7;
-    const headHalfWidth = 13;
-    const headLength = 26;
+// This controls arrow thickness.
+const arrowNormal = {
+  x: -direction.y,
+  y: direction.x
+};
 
-    const tailO = shiftPoint(tail, normal, offset);
-    const splitO = shiftPoint(splitPoint, normal, offset);
-    const headO = shiftPoint(head, normal, offset);
+// This controls which side of the Aberdeen-Stavanger route the arrow sits on.
+// It is based on the route direction, not the individual arrow direction.
+const routeDirection = unitVector(pointAtFraction(0), pointAtFraction(1));
+const routeNormal = {
+  x: -routeDirection.y,
+  y: routeDirection.x
+};
+
+const bodyHalfWidth = 7;
+const headHalfWidth = 13;
+const headLength = 26;
+
+const tailO = shiftPoint(tail, routeNormal, offset);
+const splitO = shiftPoint(splitPoint, routeNormal, offset);
+const headO = shiftPoint(head, routeNormal, offset);
 
     const headBase = {
       x: headO.x - direction.x * headLength,
@@ -445,16 +455,16 @@ function drawIncentiveArrows() {
 
     // Solid section before the second breakeven point is reached.
     makePolygon([
-      shiftPoint(tailO, normal, bodyHalfWidth),
-      shiftPoint(splitO, normal, bodyHalfWidth),
-      shiftPoint(splitO, normal, -bodyHalfWidth),
-      shiftPoint(tailO, normal, -bodyHalfWidth)
+      shiftPoint(tailO, arrownormal, bodyHalfWidth),
+      shiftPoint(splitO, arrownormal, bodyHalfWidth),
+      shiftPoint(splitO, arrownormal, -bodyHalfWidth),
+      shiftPoint(tailO, arrownormal, -bodyHalfWidth)
     ], solidColor, 0.86);
 
     // Split section, colour A.
     makePolygon([
-      shiftPoint(splitO, normal, bodyHalfWidth),
-      shiftPoint(headBase, normal, bodyHalfWidth),
+      shiftPoint(splitO, arrownormal, bodyHalfWidth),
+      shiftPoint(headBase, arrownormal, bodyHalfWidth),
       headBase,
       splitO
     ], splitColorA, 0.90);
@@ -463,21 +473,21 @@ function drawIncentiveArrows() {
     makePolygon([
       splitO,
       headBase,
-      shiftPoint(headBase, normal, -bodyHalfWidth),
-      shiftPoint(splitO, normal, -bodyHalfWidth)
+      shiftPoint(headBase, arrownormal, -bodyHalfWidth),
+      shiftPoint(splitO, arrownormal, -bodyHalfWidth)
     ], splitColorB, 0.90);
 
     // Split arrowhead, colour A.
     makePolygon([
       headO,
       headBase,
-      shiftPoint(headBase, normal, headHalfWidth)
+      shiftPoint(headBase, arrownormal, headHalfWidth)
     ], splitColorA, 0.92);
 
     // Split arrowhead, colour B.
     makePolygon([
       headO,
-      shiftPoint(headBase, normal, -headHalfWidth),
+      shiftPoint(headBase, arrownormal, -headHalfWidth),
       headBase
     ], splitColorB, 0.92);
   }
