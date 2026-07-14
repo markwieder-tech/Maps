@@ -353,12 +353,6 @@ const splitLinePerps = getPerpendiculars(135.5 / 271, 40);
 
 // ===== START incentive arrows =====
 
-// Directional incentive arrows along the Aberdeen-Stavanger route.
-// Left arrow: UK port servicing favoured.
-// Right arrow: rerouting favoured.
-// Colours match the two breakeven points:
-// purple = no port call breakeven; orange = port call breakeven.
-
 const incentiveArrowSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 incentiveArrowSvg.setAttribute("class", "incentive-arrows");
 incentiveArrowSvg.style.position = "absolute";
@@ -424,47 +418,47 @@ function drawIncentiveArrows() {
       offset
     } = options;
 
-const direction = unitVector(tail, head);
+    // Direction controls the direction the arrow points.
+    const arrowDirection = unitVector(tail, head);
 
-// This controls arrow thickness.
-const arrowNormal = {
-  x: -direction.y,
-  y: direction.x
-};
-
-// This controls which side of the Aberdeen-Stavanger route the arrow sits on.
-// It is based on the route direction, not the individual arrow direction.
-const routeDirection = unitVector(pointAtFraction(0), pointAtFraction(1));
-const routeNormal = {
-  x: -routeDirection.y,
-  y: routeDirection.x
-};
-
-const bodyHalfWidth = 7;
-const headHalfWidth = 13;
-const headLength = 26;
-
-const tailO = shiftPoint(tail, routeNormal, offset);
-const splitO = shiftPoint(splitPoint, routeNormal, offset);
-const headO = shiftPoint(head, routeNormal, offset);
-
-    const headBase = {
-      x: headO.x - direction.x * headLength,
-      y: headO.y - direction.y * headLength
+    // This controls arrow thickness.
+    const arrowNormal = {
+      x: -arrowDirection.y,
+      y: arrowDirection.x
     };
 
-    // Solid section before the second breakeven point is reached.
+    // This controls which side of the main Aberdeen-Stavanger route the arrow sits on.
+    const routeDirection = unitVector(pointAtFraction(0), pointAtFraction(1));
+    const routeNormal = {
+      x: -routeDirection.y,
+      y: routeDirection.x
+    };
+
+    const bodyHalfWidth = 7;
+    const headHalfWidth = 13;
+    const headLength = 26;
+
+    const tailO = shiftPoint(tail, routeNormal, offset);
+    const splitO = shiftPoint(splitPoint, routeNormal, offset);
+    const headO = shiftPoint(head, routeNormal, offset);
+
+    const headBase = {
+      x: headO.x - arrowDirection.x * headLength,
+      y: headO.y - arrowDirection.y * headLength
+    };
+
+    // Solid section before both breakeven points have been crossed.
     makePolygon([
-      shiftPoint(tailO, arrownormal, bodyHalfWidth),
-      shiftPoint(splitO, arrownormal, bodyHalfWidth),
-      shiftPoint(splitO, arrownormal, -bodyHalfWidth),
-      shiftPoint(tailO, arrownormal, -bodyHalfWidth)
+      shiftPoint(tailO, arrowNormal, bodyHalfWidth),
+      shiftPoint(splitO, arrowNormal, bodyHalfWidth),
+      shiftPoint(splitO, arrowNormal, -bodyHalfWidth),
+      shiftPoint(tailO, arrowNormal, -bodyHalfWidth)
     ], solidColor, 0.86);
 
     // Split section, colour A.
     makePolygon([
-      shiftPoint(splitO, arrownormal, bodyHalfWidth),
-      shiftPoint(headBase, arrownormal, bodyHalfWidth),
+      shiftPoint(splitO, arrowNormal, bodyHalfWidth),
+      shiftPoint(headBase, arrowNormal, bodyHalfWidth),
       headBase,
       splitO
     ], splitColorA, 0.90);
@@ -473,30 +467,28 @@ const headO = shiftPoint(head, routeNormal, offset);
     makePolygon([
       splitO,
       headBase,
-      shiftPoint(headBase, arrownormal, -bodyHalfWidth),
-      shiftPoint(splitO, arrownormal, -bodyHalfWidth)
+      shiftPoint(headBase, arrowNormal, -bodyHalfWidth),
+      shiftPoint(splitO, arrowNormal, -bodyHalfWidth)
     ], splitColorB, 0.90);
 
     // Split arrowhead, colour A.
     makePolygon([
       headO,
       headBase,
-      shiftPoint(headBase, arrownormal, headHalfWidth)
+      shiftPoint(headBase, arrowNormal, headHalfWidth)
     ], splitColorA, 0.92);
 
     // Split arrowhead, colour B.
     makePolygon([
       headO,
-      shiftPoint(headBase, arrownormal, -headHalfWidth),
+      shiftPoint(headBase, arrowNormal, -headHalfWidth),
       headBase
     ], splitColorB, 0.92);
   }
 
-  // Route fractions
   const noPortFraction = 119 / 271;
   const portCallFraction = 126 / 271;
 
-  // Extend arrows close to the two ports.
   const leftEndFraction = 0.03;
   const rightEndFraction = 0.97;
 
@@ -505,13 +497,12 @@ const headO = shiftPoint(head, routeNormal, offset);
   const leftEndPoint = pointAtFraction(leftEndFraction);
   const rightEndPoint = pointAtFraction(rightEndFraction);
 
-  // Offset arrows slightly away from the main blue route line.
-  const leftArrowOffset = 30;
-  const rightArrowOffset = -30;
+  // Positive offset should put the left arrow below the route.
+  // Negative offset should put the right arrow above the route.
+  const leftArrowOffset = 34;
+  const rightArrowOffset = -34;
 
-  // Left arrow:
-  // starts orange at the port call breakeven point,
-  // then becomes orange/purple after the no port call breakeven point.
+  // Left arrow: towards Aberdeen.
   drawSingleToSplitArrow({
     tail: portCallPoint,
     splitPoint: noPortPoint,
@@ -522,9 +513,7 @@ const headO = shiftPoint(head, routeNormal, offset);
     offset: leftArrowOffset
   });
 
-  // Right arrow:
-  // starts purple at the no port call breakeven point,
-  // then becomes purple/orange after the port call breakeven point.
+  // Right arrow: towards Stavanger.
   drawSingleToSplitArrow({
     tail: noPortPoint,
     splitPoint: portCallPoint,
