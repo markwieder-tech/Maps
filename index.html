@@ -168,13 +168,13 @@
       Offshore site
     </div>
   </div>
-
-  <div class="caption">
-    Breakeven locations use the 12-month fuel average and central ETS scenario.
-    Distances are measured in nautical miles from Aberdeen along the indicative
-    Aberdeen-Stavanger route. Offshore sites are placeholders until actual site
-    coordinates are added.
-  </div>
+  
+<div class="caption">
+  Breakeven locations use the 12-month fuel average and central ETS scenario.
+  Distances are measured in nautical miles from Aberdeen along the indicative
+  Aberdeen-Stavanger route. Offshore sites show selected active UKCS surface
+  infrastructure in the relevant North Sea area.
+</div>
   
   <script>
     // Coordinates: [latitude, longitude]
@@ -188,7 +188,62 @@
     // Calculated points along the Aberdeen-Stavanger route
 
     // Placeholder offshore sites. Replace these with actual site coordinates.
-    const offshoreSites = [];
+const offshoreSites = [
+  { name: "MARKER BUOY", coords: [57.007435, 1.307959] },
+  { name: "ELGIN PUQ", coords: [57.011054, 1.836305] },
+  { name: "ELGIN A WHP", coords: [57.011612, 1.838554] },
+  { name: "ELGIN B WHP", coords: [57.012030, 1.840391] },
+  { name: "CARDINAL BUOY 1", coords: [57.013710, 1.333696] },
+  { name: "SHEARWATER C", coords: [57.030391, 1.953425] },
+  { name: "SHEARWATER A", coords: [57.031547, 1.953807] },
+  { name: "ERSKINE", coords: [57.039315, 2.069980] },
+  { name: "TRITON FPSO", coords: [57.083247, 0.890872] },
+  { name: "PIERCE WAVERIDER", coords: [57.156033, 2.269817] },
+  { name: "PIERCE FPSO HAEWENE BRIM", coords: [57.160787, 2.293092] },
+  { name: "GANNET A", coords: [57.184376, 0.998425] },
+  { name: "CULZEAN LIVING QTRS AND UTILITY (ULQ)", coords: [57.190247, 1.907964] },
+  { name: "CULZEAN PROCESSING PLATFORM (CPF)", coords: [57.191253, 1.909759] },
+  { name: "CULZEAN WHP JACKET", coords: [57.192449, 1.911432] },
+  { name: "CULZEAN FSO - AILSA", coords: [57.195475, 1.961101] },
+  { name: "ANASURIA", coords: [57.256533, 0.808235] },
+  { name: "LOMOND", coords: [57.286897, 2.176709] },
+  { name: "ETAP QU", coords: [57.293610, 1.660798] },
+  { name: "ETAP PDR", coords: [57.294451, 1.661467] },
+  { name: "ARBROATH", coords: [57.374299, 1.381666] },
+  { name: "Mungo Platform", coords: [57.374781, 1.996335] },
+  { name: "MONTROSE A", coords: [57.450032, 1.386783] },
+  { name: "MONTROSE BLP PLATFORM", coords: [57.451139, 1.386889] },
+  { name: "KITTIWAKE", coords: [57.467678, 0.510667] },
+  { name: "NELSON A", coords: [57.662228, 1.143999] },
+  { name: "FORTIES ECHO", coords: [57.715561, 1.030633] },
+  { name: "FORTIES UNITY", coords: [57.721067, 0.754945] },
+  { name: "FORTIES DELTA", coords: [57.721761, 0.901628] },
+  { name: "FORTIES CHARLIE", coords: [57.726312, 0.845940] },
+  { name: "FASP", coords: [57.731201, 0.968956] },
+  { name: "FORTIES ALPHA", coords: [57.731308, 0.971229] },
+  { name: "FORTIES BRAVO", coords: [57.748661, 0.913570] },
+  { name: "CATS RISER", coords: [57.757436, 1.802132] },
+  { name: "NORTH EVEREST", coords: [57.758033, 1.800061] },
+  { name: "UP – UTILITIES/QUARTERS PLATFORM", coords: [57.812859, -0.977633] },
+  { name: "PP – PRODUCTION PLATFORM", coords: [57.813557, -0.976005] },
+  { name: "WP – WELLHEAD PLATFORM", coords: [57.814315, -0.974438] },
+  { name: "PS – PRODUCTION SWEETENING PLATFORM", coords: [57.814479, -0.976406] },
+  { name: "ARMADA", coords: [57.956819, 1.844399] },
+  { name: "GOLDEN EAGLE PUQ PLATFORM", coords: [57.960090, -0.917835] },
+  { name: "GOLDEN EAGLE WELLHEAD PLATFORM", coords: [57.961268, -0.917738] },
+  { name: "Andrew", coords: [58.046910, 1.402726] },
+  { name: "ALBA", coords: [58.047833, 1.032633] },
+  { name: "BRITANNIA", coords: [58.048017, 1.137267] },
+  { name: "BRITANNIA BLP", coords: [58.048135, 1.139724] },
+  { name: "ALBA NORTH", coords: [58.058033, 1.079633] },
+  { name: "SCOTT JU", coords: [58.288351, 0.199030] },
+  { name: "SCOTT JD", coords: [58.288704, 0.200594] },
+  { name: "FPSO GLOBAL PRODUCER III", coords: [58.352847, 0.862615] },
+  { name: "CLAYMORE CPP", coords: [58.448705, -0.255078] },
+  { name: "CLAYMORE CAP", coords: [58.449089, -0.257527] },
+  { name: "PIPER B", coords: [58.460737, 0.249572] },
+  { name: "TIFFANY", coords: [58.477789, 1.264941] }
+];
 
     
 // Calculate points directly along the displayed Aberdeen-Stavanger line
@@ -677,22 +732,16 @@ map.on("zoomend moveend resize", drawIncentiveArrows);
       dashArray: "8, 8"
     }).addTo(map);
 
-    // Offshore site markers
-    offshoreSites.forEach(site => {
-      L.circleMarker(site.coords, {
-        radius: 6,
-        color: "white",
-        weight: 1.5,
-        fillColor: "#333333",
-        fillOpacity: 1
-      })
-      .addTo(map)
-      .bindTooltip(site.name, {
-        permanent: true,
-        direction: "right",
-        className: "label"
-      });
-    });
+// Offshore site markers: small black dots only, no labels
+offshoreSites.forEach(site => {
+  L.circleMarker(site.coords, {
+    radius: 3,
+    color: "#333333",
+    weight: 0,
+    fillColor: "#333333",
+    fillOpacity: 0.9
+  }).addTo(map);
+});
 
     // Automatically fit map to main route
     map.fitBounds(routeLine.getBounds(), {
