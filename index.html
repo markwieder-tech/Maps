@@ -122,32 +122,32 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 
-/* Custom top-left pointer for the port call breakeven label */
+/* Custom angled pointer for the port call breakeven label */
 .port-call-label.leaflet-tooltip-right:before {
-  display: none;
-}
-
-.port-call-label:before {
+  display: block;
   content: "";
   position: absolute;
-  left: -11px;
-  top: -10px;
+
+  /* Position pointer at the top-left of the label box */
+  left: -10px;
+  top: 4px;
+
+  /* Leaflet-style triangular pointer */
   width: 0;
   height: 0;
-  border-style: solid;
-  border-width: 0 12px 12px 0;
-  border-color: transparent #888 transparent transparent;
+  margin: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 10px solid rgba(255, 255, 255, 0.92);
+  border-left: 0;
+
+  /* Angle it up-left towards the orange circle */
+  transform: rotate(-35deg);
+  transform-origin: right center;
+
+  filter: drop-shadow(-1px 1px 1px rgba(0,0,0,0.25));
 }
-
-.port-call-label:after {
-  content: "";
-  position: absolute;
-  left: -9px;
-  top: -8px;
-  width: 0;
-  height: 0;
-  border-style: 
-
+    
   </style>
 </head>
 
