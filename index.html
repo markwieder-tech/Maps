@@ -355,15 +355,32 @@ function drawPortCallLabelPointer() {
   // Marker centre in map-container pixels
   const markerPoint = map.latLngToContainerPoint(portCallBreakeven);
 
-  // Attach point on the top-left area of the label box
-  const anchorPoint = {
-    x: tooltipRect.left - mapRect.left + 4,
-    y: tooltipRect.top - mapRect.top + 10
+  // Top-left corner of the label box, in map-container pixels
+  const labelLeft = tooltipRect.left - mapRect.left;
+  const labelTop = tooltipRect.top - mapRect.top;
+
+  // Two base points on the top-left corner of the label box.
+  // These make the pointer look attached to the corner.
+  const cornerSize = 6;
+
+  const basePointA = {
+    x: labelLeft + cornerSize,
+    y: labelTop
   };
 
-  // Direction from label corner to orange marker
-  const dx = markerPoint.x - anchorPoint.x;
-  const dy = markerPoint.y - anchorPoint.y;
+  const basePointB = {
+    x: labelLeft,
+    y: labelTop + cornerSize
+  };
+
+  // Use the corner itself as the direction reference
+  const cornerPoint = {
+    x: labelLeft,
+    y: labelTop
+  };
+
+  const dx = markerPoint.x - cornerPoint.x;
+  const dy = markerPoint.y - cornerPoint.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
 
   if (distance < 1) return;
@@ -371,26 +388,10 @@ function drawPortCallLabelPointer() {
   const ux = dx / distance;
   const uy = dy / distance;
 
-  // Perpendicular vector for triangular pointer width
-  const nx = -uy;
-  const ny = ux;
-
   // Stop just before the centre of the orange circle
   const tipPoint = {
     x: markerPoint.x - ux * 9,
     y: markerPoint.y - uy * 9
-  };
-
-  const baseWidth = 7;
-
-  const basePointA = {
-    x: anchorPoint.x + nx * baseWidth,
-    y: anchorPoint.y + ny * baseWidth
-  };
-
-  const basePointB = {
-    x: anchorPoint.x - nx * baseWidth,
-    y: anchorPoint.y - ny * baseWidth
   };
 
   const pointer = document.createElementNS(svgNS, "polygon");
@@ -400,10 +401,9 @@ function drawPortCallLabelPointer() {
     `${basePointA.x},${basePointA.y} ${basePointB.x},${basePointB.y} ${tipPoint.x},${tipPoint.y}`
   );
 
+  // Match the label background and remove border
   pointer.setAttribute("fill", "rgba(255, 255, 255, 0.92)");
-  pointer.setAttribute("stroke", "#888");
-  pointer.setAttribute("stroke-width", "1");
-  pointer.setAttribute("stroke-linejoin", "round");
+  pointer.setAttribute("stroke", "none");
 
   portCallPointerSvg.appendChild(pointer);
 }
