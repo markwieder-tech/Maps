@@ -67,13 +67,13 @@
       height: 4px;
     }
 
-    .purple-diamond {
-      width: 12px;
-      height: 12px;
-      background: #7c3aed;
-      transform: rotate(45deg);
-      margin-left: 4px;
-    }
+.purple-circle {
+  width: 13px;
+  height: 13px;
+  background: #7c3aed;
+  border-radius: 50%;
+  margin-left: 4px;
+}
 
     .orange-circle {
       width: 13px;
@@ -154,7 +154,7 @@
     </div>
 
     <div class="legend-item">
-      <span class="legend-symbol orange-circle"></span>
+    <span class="legend-symbol purple-circle"></span>
       Port call breakeven
     </div>
 
@@ -292,25 +292,15 @@ const splitLinePerps = getPerpendiculars(135.5 / 271, 40);
       className: "label"
     });
 
-    // No port call breakeven marker
-    L.marker(noPortCallBreakeven, {
-      icon: L.divIcon({
-        className: "",
-        html: `
-          <div style="
-            width: 18px;
-            height: 18px;
-            background: #7c3aed;
-            transform: rotate(45deg);
-            border: 2px solid white;
-            box-shadow: 0 0 3px rgba(0,0,0,0.5);
-          "></div>
-        `,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11]
-      })
-    })
-    .addTo(map)
+// No port call breakeven marker
+L.circleMarker(noPortCallBreakeven, {
+  radius: 7,
+  color: "white",
+  weight: 2,
+  fillColor: "#7c3aed",
+  fillOpacity: 1
+})
+.addTo(map)
 .bindTooltip("No port call<br>breakeven point<br>119 nm", {
   permanent: true,
   direction: "left",
@@ -318,15 +308,15 @@ const splitLinePerps = getPerpendiculars(135.5 / 271, 40);
   className: "label"
 });
 
-    // Port call breakeven marker
-    L.circleMarker(portCallBreakeven, {
-      radius: 9,
-      color: "white",
-      weight: 2,
-      fillColor: "#f97316",
-      fillOpacity: 1
-    })
-    .addTo(map)
+// Port call breakeven marker
+L.circleMarker(portCallBreakeven, {
+  radius: 7,
+  color: "white",
+  weight: 2,
+  fillColor: "#f97316",
+  fillOpacity: 1
+})
+.addTo(map)
 .bindTooltip("Port call<br>breakeven point<br>126 nm", {
   permanent: true,
   direction: "bottom",
