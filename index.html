@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -122,30 +121,24 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 
-/* Custom angled pointer for the port call breakeven label */
-.port-call-label.leaflet-tooltip-right:before {
-  display: block;
-  content: "";
+/* Custom angled pointer for the port call breakeven label: replace pseudo-element with an inner pointer element */
+.port-call-label {
+  position: relative; /* allow pointer positioned inside tooltip */
+}
+
+/* pointer element placed at the top-left inside the tooltip */
+.port-call-label .pc-pointer {
   position: absolute;
-
-  /* Position pointer at the top-left of the label box */
-  left: -10px;
-  top: 4px;
-
-  /* Leaflet-style triangular pointer */
+  left: -10px;           /* sits outside the tooltip box on the left */
+  top: 8px;              /* top-left-ish; adjust if you want different attachment point */
   width: 0;
   height: 0;
-  margin: 0;
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent;
-  border-right: 10px solid rgba(255, 255, 255, 0.92);
-  border-left: 0;
-
-  /* Angle it up-left towards the orange circle */
-  transform: rotate(-35deg);
-  transform-origin: right center;
-
+  border-right: 10px solid rgba(255,255,255,0.92); /* matches tooltip bg */
   filter: drop-shadow(-1px 1px 1px rgba(0,0,0,0.25));
+  transform-origin: 0 50%; /* rotate around the left edge where it meets the tooltip */
+  pointer-events: none; /* don't capture mouse events */
 }
     
   </style>
@@ -348,6 +341,58 @@ L.circleMarker(portCallBreakeven, {
   offset: L.point(16, 34),
   className: "label port-call-label"
 });
+
+// Insert dynamic pointer logic for the port-call label
+function updatePortCallPointer() {
+  const tooltipEl = document.querySelector('.leaflet-tooltip.port-call-label');
+  if (!tooltipEl) return;
+
+  // Ensure pointer element exists
+  let ptr = tooltipEl.querySelector('.pc-pointer');
+  if (!ptr) {
+    ptr = document.createElement('span');
+    ptr.className = 'pc-pointer';
+    tooltipEl.appendChild(ptr);
+  }
+
+  // Tooltip bounding rect (viewport coordinates)
+  const tooltipRect = tooltipEl.getBoundingClientRect();
+
+  // Map container rect (viewport coords) and marker container point (pixels inside map)
+  const mapRect = map.getContainer().getBoundingClientRect();
+  const markerPoint = map.latLngToContainerPoint(portCallBreakeven);
+
+  // Convert marker to viewport coordinates
+  const markerClientX = mapRect.left + markerPoint.x;
+  const markerClientY = mapRect.top + markerPoint.y;
+
+  // Compute base point — where the pointer is attached inside the tooltip in viewport coords.
+  // These values must match the CSS left/top used above. left = -10px means the pointer's left edge
+  // is 10px outside the tooltip left edge; but for the base position we take a small inside-the-box
+  // attachment so rotation looks correct.
+  const attachOffsetX = 6; // px inside tooltip from left edge (tweak if needed)
+  const attachOffsetY = 8; // must match the CSS top for the pointer
+  const baseClientX = tooltipRect.left + attachOffsetX;
+  const baseClientY = tooltipRect.top + attachOffsetY;
+
+  // Vector from base to marker (viewport coordinates)
+  const dx = markerClientX - baseClientX;
+  const dy = markerClientY - baseClientY;
+
+  // Angle in degrees (0deg points to the right)
+  const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+  // Apply rotation to the pointer. Because the pointer triangle points to the right by default,
+  // rotating aligns it toward the marker.
+  ptr.style.transform = `rotate(${angleDeg}deg)`;
+}
+
+// Run initially and whenever the map moves/zooms/resizes (keeps pointer attached)
+map.whenReady(updatePortCallPointer);
+map.on('zoomend moveend resize', updatePortCallPointer);
+
+// Also update after a small delay when the tooltip is first created (ensures tooltip DOM exists)
+setTimeout(updatePortCallPointer, 200);
 
     // 50% route split marker
     L.circleMarker(routeMidpoint, {
